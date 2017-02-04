@@ -1,18 +1,18 @@
 {
-  "name": "angular-checkbox-tree-grid",
+  "name": "angular-drag-drop",
   "version": "1.0.1",
   "authors": [
     "Shoukath Mohammed <mshoukath.uideveloper@gmail.com>"
   ],
-  "description": "An angular checkbox tree grid directive.",
-  "main": "dist/angular-checkbox.tree-grid.min.js",
+  "description": "An angular drag & drop directive.",
+  "main": "dist/angular-drag-drop.min.js",
   "keywords": [
-    "grid",
+    "drag",
+    "drop",
     "angular",
-    "tree-grid",
+    "sort",
     "angularjs",
-    "directive",
-    "checkbox-tree"
+    "directive"
   ],
   "license": "MIT",
   "ignore": [

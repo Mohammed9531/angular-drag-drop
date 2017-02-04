@@ -1,7 +1,7 @@
 {
-  "name": "angular-checkbox-tree-grid",
+  "name": "angular-drag-drop",
   "version": "1.0.1",
-  "description": "Angular Checkbox Tree Grid.",
+  "description": "An angular drag & drop directive.",
   "main": "app.js",
   "scripts": {
     "test-unit": "karma karma.conf.js"
