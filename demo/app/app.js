@@ -5,6 +5,6 @@
 
   'use strict';
 
-  angular.module('dnd', []);
+  angular.module('myApp', ['dl.dragAndDrop']);
   
 })();
