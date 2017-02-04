@@ -1,25 +1,16 @@
-Angular Checkbox Tree Grid Directive
+Angular Drag & Drop Directive
 =====================================
 
-[![Build Status](https://travis-ci.org/Mohammed9531/angular-checkbox-tree-grid.svg?branch=master)](https://travis-ci.org/Mohammed9531/angular-checkbox-tree-grid)
+[![Build Status](https://travis-ci.org/Mohammed9531/angular-checkbox-tree-grid.svg?branch=master)](https://travis-ci.org/Mohammed9531/angular-drag-drop)
 
-A grid to display data in tree structure by using Angular and Bootstrap.
+An angular directive to sort/rearrage elements based on HTML Drag & Drop API.
 
-## Installation
-
-### NPM
-
-```bash
-$ npm install angular-checkbox-tree
-```
-
-
-## angular-checkbox-tree-grid v1.0.1
+## angular-drag-drop v1.0.1
  
-AngularJS Checkbox Tree Gird Directive <br />
+AngularJS Drag & Drop Directive <br />
 **@author** Shoukath Mohammed <mshoukath.uideveloper@gmail.com>
  
-Copyright (C) 2016
+Copyright (C) 2017
  
 **MIT License**
  
