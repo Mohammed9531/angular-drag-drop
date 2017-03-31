@@ -61,7 +61,7 @@ function ngHtmlDragDrop($parse, $timeout, $log,
       if (value == "destroy") {
         if (dd.options.isHandle) {
           dd.options.isHandle = false;
-          dd.unbind();
+          dd.unregister();
         }
         return;
       }

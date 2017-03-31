@@ -31,12 +31,18 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
 
   // adding this line below skips dot notation validation
   /*jshint sub:true*/
-  var count = 0;
-  var DataFactory = function() {
-    var self = this;
+  var DRAG_EVENTS = [
+      'drop'
+    , 'dragstart'
+    , 'dragenter'
+    , 'dragover'
+    , 'dragleave'
+    , 'dragend'
+  ]
 
-    // holds list of elements to be dragged
-    this.cols = [];
+  // data factory that holds the data for each instance
+  , DataFactory = function() {
+    var self = this;
 
     this.options = {
       'sortBy': null,
@@ -50,38 +56,12 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       'hasDragHandle': false
     };
 
+    this.cols = [];
     this.destItem = {};
     this.sourceItem = {};
     this.destIndex = null;
     this.sourceIndex = null;
 
-    function onDataChange(el, ngModel, scope, value) {
-      if (value && Object.keys(value).length > 0) {
-        self.options = angular.extend(self.options,
-          angular.copy(value)
-        );
-      }
-
-      if (value == "destroy") {
-        if (self.options.isHandle) {
-          self.options.isHandle = false;
-          self.unregister();
-        }
-        return;
-      }
-
-      self.options = self.options || {};
-
-      if (angular.isDefined(scope.construct)) {
-        scope.construct(ngModel.$modelValue);
-      }
-
-      el[0].classList.add('widgets-sortable');
-      self.update();
-      $timeout(function() {
-        self.first_load = true;
-      });
-    }
 
     function onModelChange(value) {
       if (!self.first_load ||
@@ -227,8 +207,8 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       self.destItem = e.currentTarget;
 
       // this/e.target is current target element.
+      // stops the browser from redirecting.
       if (e.stopPropagation) {
-        // stops the browser from redirecting.
         e.stopPropagation();
       }
       e.preventDefault();
@@ -308,24 +288,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       // iterate over list of draggable element
       [].forEach.call(self.cols, function(col) {
         if (self.options && self.options.handle) {
-
-          // find list of element with handles
-          var handles = $document[0].querySelectorAll(self.options.handle);
-
-          // if there's a list of elements found
-          // bind mousedown event to each element
-          if (handles && handles.length) {
-            [].forEach.call(handles, function(handle) {
-              var el = angular.element(handle);
-              
-              // if element is not empty, bind event to it
-              // remove previously bound events if any
-              if (angular.isObject(el)) {
-                el.unbind('mousedown', self.activehandle);
-                el.bind('mousedown', self.activehandle);
-              }
-            });
-          }
+          self.updateHandles();
         }
 
         // set index on each element to consume it 
@@ -358,6 +321,35 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
      */
     this.activehandle = function() {
       self.options.isHandle = true;
+    };
+
+    /**
+     * @name: onDataChange
+     * @methodOf: DataService
+     *
+     * @param {newArr} updated data
+     * @param {oldArr} old data
+     *
+     * @description
+     * $watch callback method
+     */
+    this.updateHandles = function() {
+      // find list of element with handles
+      var handles = $document[0].querySelectorAll(self.options.handle);
+      // if there's a list of elements found
+      // bind mousedown event to each element
+      if (handles && handles.length) {
+        [].forEach.call(handles, function(handle) {
+          var el = angular.element(handle);
+
+          // if element is not empty, bind event to it
+          // remove previously bound events if any
+          if (angular.isObject(el)) {
+            el.unbind('mousedown', self.activehandle);
+            el.bind('mousedown', self.activehandle);
+          }
+        });
+      }
     };
 
     /**
@@ -443,14 +435,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     };
   }
 
-  DataFactory.prototype.events = [
-      'drop'
-    , 'dragstart'
-    , 'dragenter'
-    , 'dragover'
-    , 'dragleave'
-    , 'dragend'
-  ];
+  DataFactory.prototype.events = DRAG_EVENTS;
 
   /**
    * @name: onDataChange
