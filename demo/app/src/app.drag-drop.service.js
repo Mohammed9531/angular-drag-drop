@@ -32,20 +32,16 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     // holds list of elements to be dragged
     this.cols = [];
 
-    this.events = [
-      'drop', 'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend'
-    ];
-
     this.options = {
       'sortBy': null,
       'inUse': false,
       'storage': null,
       'active': false,
       'replace': false,
+      'properties': {},
       'isHandle': false,
-      'hasDragHandle': false,
       'firstLoad': false,
-      'properties': {}
+      'hasDragHandle': false
     };
 
     this.destItem = {};
@@ -212,30 +208,6 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       }
     };
 
-
-    /**
-     * @name: onDataChange
-     * @methodOf: DataService
-     *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
-     *
-     * @description
-     * $watch callback method
-     */
-    this.currentBrowser = function() {
-      var result, browser_agent = $window.navigator.userAgent;
-
-      if (browser_agent.indexOf(".NET") != -1) {
-        result = "IE";
-      } else if (browser_agent.indexOf("Firefox") != -1) {
-        result = "Firefox";
-      } else {
-        result = "Chrome";
-      }
-      return result;
-    };
-
     /**
      * @name: onDataChange
      * @methodOf: DataService
@@ -324,6 +296,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     this.update = function() {
       $log.info("Update sortable:");
       self.sourceItem = null;
+
       var index = 0;
       var _model = self.options.properties.models || {};
 
@@ -351,12 +324,16 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
           }
         }
 
+        // set index on each element to consume it 
+        // in re-arraging the elements based on the src & dest indexes
         col.index = index;
         col.model = _model.$modelValue[index];
-
         index++;
 
-        col.setAttribute('draggable', 'true'); // Enable columns to be draggable.
+        // make columns draggable
+        col.setAttribute('draggable', 'true');
+
+        // register to drag & drop events
         self.register(col);
       });
       self.options.isHandle = true;
@@ -457,6 +434,33 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       }
     };
   }
+
+  DataFactory.prototype.events = [
+    'drop', 'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend'
+  ];
+
+  /**
+   * @name: onDataChange
+   * @methodOf: DataService
+   *
+   * @param {newArr} updated data
+   * @param {oldArr} old data
+   *
+   * @description
+   * $watch callback method
+   */
+  DataFactory.prototype.currentBrowser = function() {
+    var result, browser_agent = $window.navigator.userAgent;
+
+    if (browser_agent.indexOf(".NET") != -1) {
+      result = "IE";
+    } else if (browser_agent.indexOf("Firefox") != -1) {
+      result = "Firefox";
+    } else {
+      result = "Chrome";
+    }
+    return result;
+  };
 
   return {
     getInstance: function() {
