@@ -15,7 +15,13 @@ angular
   .module('angular-html-drag-drop')
   .service('DragDropService', DragDropService);
 
-DragDropService.$inject = ['$timeout', '$log', '$window', '$document', '$rootScope'];
+DragDropService.$inject = [
+  '$timeout',
+  '$log',
+  '$window',
+  '$document',
+  '$rootScope'
+];
 
 function DragDropService($timeout, $log, $window, $document, $rootScope) {
 
@@ -48,7 +54,6 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     this.sourceItem = {};
     this.destIndex = null;
     this.sourceIndex = null;
-
 
     function onDataChange(el, ngModel, scope, value) {
       if (value && Object.keys(value).length > 0) {
@@ -114,7 +119,14 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       if (!el && !!!el[0]) return;
 
       self.cols = el[0].children;
-    }
+    };
+
+
+    this.addClass = function(current) {
+      if (!current.classList.contains('over')) {
+        current.classList.add('over');
+      }
+    };
 
     /**
      * @name: handleDragOver
@@ -128,14 +140,12 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     this.handleDragOver = function(e) {
       var current = e.currentTarget;
 
+      // allows us to drop
       if (e.preventDefault) {
-        e.preventDefault(); // Allows us to drop.
+        e.preventDefault();
       }
       e.dataTransfer.dropEffect = 'move';
-
-      if (!current.classList.contains('over')) {
-        current.classList.add('over');
-      }
+      self.addClass(current);
     };
 
     /**
@@ -162,10 +172,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
      */
     this.handleDragEnter = function(e) {
       var current = e.currentTarget;
-
-      if (!current.classList.contains('over')) {
-        current.classList.add('over');
-      }
+      self.addClass(current);
     };
 
     /**
@@ -201,10 +208,8 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
 
 
       function onDataRendered() {
-        //init flag indicate the first load sortable is done or not
+        // init flag indicate the first load sortable is done or not
         self.first_load = false;
-
-        //scope.$watch('ngHtmlDragDrop', onDataChange.bind(this, el, ngModel), true);
       }
     };
 
