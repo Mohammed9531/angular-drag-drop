@@ -65,7 +65,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       if (value == "destroy") {
         if (self.options.isHandle) {
           self.options.isHandle = false;
-          self.unbind();
+          self.unregister();
         }
         return;
       }
@@ -266,7 +266,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       var dragged = angular.copy(_model.$modelValue[dragIndex]);
 
       if (_model.$modelValue.indexOf(dragModel) != -1) {
-        self.unbind();
+        self.unregister();
         if (self.options.replace) {
           _model.$modelValue[dragIndex] = dropModel;
           _model.$modelValue[dropIndex] = dragModel;
@@ -299,32 +299,31 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
      * $watch callback method
      */
     this.update = function() {
-      $log.info("Update sortable:");
       self.sourceItem = null;
 
-      var index = 0;
-      var _model = self.options.properties.models || {};
-
-      //This's empty list, so just need listen drop from other
-      if (_model.$modelValue.length === 0) {
-        if (self.cols.length > 0) {
-          //Set index = 0( simulate first index )
-          self.cols[0].index = 0;
-          self.register(self.cols[0]);
-        }
-        return;
-      }
-
+      var index = 0
+      , _model = self.options.properties.models || {};
       self.cols = self.cols || [];
+
+      // iterate over list of draggable element
       [].forEach.call(self.cols, function(col) {
         if (self.options && self.options.handle) {
+
+          // find list of element with handles
           var handles = $document[0].querySelectorAll(self.options.handle);
 
+          // if there's a list of elements found
+          // bind mousedown event to each element
           if (handles && handles.length) {
             [].forEach.call(handles, function(handle) {
               var el = angular.element(handle);
-              el.unbind('mousedown', self.activehandle);
-              el.bind('mousedown', self.activehandle);
+              
+              // if element is not empty, bind event to it
+              // remove previously bound events if any
+              if (angular.isObject(el)) {
+                el.unbind('mousedown', self.activehandle);
+                el.bind('mousedown', self.activehandle);
+              }
             });
           }
         }
@@ -332,6 +331,8 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
         // set index on each element to consume it 
         // in re-arraging the elements based on the src & dest indexes
         col.index = index;
+
+        // attach model to the element to be consumed on drag end
         col.model = _model.$modelValue[index];
         index++;
 
@@ -342,6 +343,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
         self.register(col);
       });
       self.options.isHandle = true;
+      $log.info("Update sortable:");
     };
 
     /**
@@ -369,8 +371,9 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
      * $watch callback method
      */
     this.handleDragStart = function(e) {
-      var _ce = e.currentTarget;
+      var current = e.currentTarget;
 
+      // reset sourceItem on drag start
       self.sourceItem = null;
       if (self.options && !self.options.isHandle && self.options.handle) {
         e.preventDefault();
@@ -380,14 +383,14 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       self.options.isHandle = false;
       e.dataTransfer.effectAllowed = 'move';
 
-      //Fixed on firefox and IE 11
+      // fixed on firefox and IE 11
       if (self.currentBrowser != "IE") {
         e.dataTransfer.setData('text/plain', 'anything');
       }
-      self.sourceItem = _ce;
+      self.sourceItem = current;
 
       // this/e.target is the source node.
-      _ce.classList.add('moving');
+      current.classList.add('moving');
     };
 
     /**
@@ -414,7 +417,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
      * @description
      * $watch callback method
      */
-    this.unbind = function() {
+    this.unregister = function() {
       self.options.isHandle = false;
 
       [].forEach.call(self.cols, function(col) {
@@ -441,7 +444,12 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
   }
 
   DataFactory.prototype.events = [
-    'drop', 'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend'
+      'drop'
+    , 'dragstart'
+    , 'dragenter'
+    , 'dragover'
+    , 'dragleave'
+    , 'dragend'
   ];
 
   /**
