@@ -34,6 +34,25 @@
     }
     ];
 
+    $scope.blocks1 = [
+    {
+      title: "Ng1",
+      desc: "Sample Ng1"
+    },
+    {
+      title: "Ng2",
+      desc: "Sample Ng2"
+    },
+    {
+      title: "Ng3",
+      desc: "Sample Ng3"
+    },
+    {
+      title: "Ng4",
+      desc: "Sample Ng4"
+    }
+    ];
+
         // drag and drop customization options
     $scope.options = {
       //only allow draggable when click on handle element
@@ -46,6 +65,18 @@
       stop: fnOnDragEnd,
       replace: true
     };
+
+    $scope.options1 = {
+      //only allow draggable when click on handle element
+      handle: '.handle1',
+
+      //construct method before sortable code
+      construct: fnOnDragStart,
+
+      //callback after item is dropped
+      stop: fnOnDragEnd,
+      replace: true
+    }
 
 
     /*******************************************************

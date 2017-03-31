@@ -1,28 +1,95 @@
 /**
- * Customized HTM5 Widgets Sortable for DataLakes 
- *
  * @author: Shoukath Mohammed   
- * @credits:https://github.com/bachvtuan/html5-sortable-angularjs
  */
 (function() {
 
   'use strict';
 
+  var DragDropDataModel = function() {
+    /*this._events = [
+      'drop', 'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend'
+    ];
+*/
+    this._options = {
+      'sortBy': null,
+      'inUse': false,
+      'storage': null,
+      'active': false,
+      'replace': false,
+      'hasDragHandle': false
+    };
+
+    this._destItem = {};
+    this._sourceItem = {};
+    this._destIndex = null;
+    this._sourceIndex = null;
+
+    this._currentBrowser = (function() {
+      var result
+      , browser_agent = window.navigator.userAgent;
+
+      if (browser_agent.indexOf(".NET") != -1) {
+        result = "IE";
+      } else if (browser_agent.indexOf("Firefox") != -1) {
+        result = "Firefox";
+      } else {
+        result = "Chrome";
+      }
+      return result;
+    })();
+  };
+
+  DragDropDataModel.prototype._version = "1.0.1";
+  DragDropDataModel.prototype._toTitleCase = function() {
+    return this._events.map(function(ev) {
+      return ev.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    });
+  }
+
+  DragDropDataModel.prototype._setItem = function(key, value) {
+    if (!key || !value) {
+      throw new Error("Key & Value must be defined!");
+    }
+    this[(key.indexOf('_') == -1) ? ("_" + key) : key] = value;
+  }
+
+  DragDropDataModel.prototype._sort = function(arr, prop) {
+    if (!this._data || !prop) return;
+    arr = arr || this._data;
+
+    return arr.sort(function(a, b) {
+      return a[prop] - b[prop];
+    });
+  }
+
+  DragDropDataModel.prototype._events = [
+      'drop'
+      , 'dragstart'
+      , 'dragenter'
+      , 'dragover'
+      , 'dragleave'
+      , 'dragend'
+  ];
+
   angular
-    .module('dl.dragAndDrop', [])
-    .directive('widgetsSortable', widgetsSortable);
+    .module('angular-html-drag-drop', []);
 
-  widgetsSortable.$inject = ["$parse", "$timeout", "$log", "$window"];
 
-  function widgetsSortable($parse, $timeout, $log, $window) {
+    angular
+      .module('angular-html-drag-drop')
+      .directive('ngHtmlDragDrop', ngHtmlDragDrop);
+
+  ngHtmlDragDrop.$inject = ["$parse", "$timeout", "$log", "$window"];
+
+  function ngHtmlDragDrop($parse, $timeout, $log, $window) {
 
     return {
       restrict: 'A',
       require: '?ngModel',
       scope: {
-        widgetsSortable: '=',
-        ngModel: '=',
-        ngExtraSortable: '='
+        ngHtmlDragDrop: '='
       },
 
       //scope: true,   // optionally create a child scope
@@ -52,10 +119,10 @@
           }
 
           sortable.is_handle = false;
-          e.dataTransfer.effectAllowed = 'move';
+          e.originalEvent.dataTransfer.effectAllowed = 'move';
           //Fixed on firefox and IE 11
           if (sortable.browser != "IE") {
-            e.dataTransfer.setData('text/plain', 'anything');
+            e.originalEvent.dataTransfer.setData('text/plain', 'anything');
           }
 
 
@@ -64,6 +131,7 @@
 
           // this/e.target is the source node.
           this.classList.add('moving');
+          //$log.info("length =", element[0].children.length);
         };
 
         sortable.handleDragOver = function(e) {
@@ -71,9 +139,8 @@
             e.preventDefault(); // Allows us to drop.
           }
 
-          e.dataTransfer.dropEffect = 'move';
-          e.dataTransfer.dropEffect = "move";
-          
+          e.originalEvent.dataTransfer.dropEffect = 'move';
+
           if (!this.classList.contains('over')) {
             this.classList.add('over');
           }
@@ -107,18 +174,43 @@
             }
 
 
+
+            /*var source_index = $window['drag_source'].index;
             var source_model = $window['drag_source'].model;
+
+            if (ngModel.$modelValue.indexOf(source_model) != -1) {
+
+              var drop_index = this.index;
+              var drop_model = angular.copy(ngModel.$modelValue[drag_index]);
+*/
+
+
+            var source_model = $window['drag_source'].model;
+            var source_index = $window['drag_source'].index;
+
+
             var drop_index = this.index;
 
             if (ngModel.$modelValue.indexOf(source_model) != -1) {
 
-              var drag_index = $window['drag_source'].index;
-              var temp = angular.copy(ngModel.$modelValue[drag_index]);
+              //var drag_index = $window['drag_source'].index;
+              var drag = angular.copy(ngModel.$modelValue[source_index]);
 
               sortable.unbind();
 
-              ngModel.$modelValue.splice(drag_index, 1);
-              ngModel.$modelValue.splice(drop_index, 0, temp);
+              ngModel.$modelValue.splice(source_index, 1);
+              ngModel.$modelValue.splice(drop_index, 0, drag);
+
+              /* if(!sortable.options.replace) {
+                 ngModel.$modelValue.splice(source_index, 1);
+                 ngModel.$modelValue.splice(drop_index, 0, drag);
+               } else {
+                 ngModel.$modelValue[source_index] = this.model;
+                 ngModel.$modelValue[drop_index] = source_model;
+               }*/
+              //sortable.handleDragEnd(element[0].children);
+
+              //ngModel.$modelValue.splice(drop_index, 0, drag);
 
             } else if (sortable.options.allow_cross) {
               ngModel.$modelValue.splice(drop_index, 0, source_model);
@@ -126,6 +218,7 @@
               $log.info("disabled cross dropping");
               return;
             }
+            element[0].children;
 
             //return;
             scope.$apply();
@@ -153,13 +246,14 @@
 
           $log.info('Unbind sortable');
           [].forEach.call(sortable.cols_, function(col) {
-            col.removeAttribute('draggable');
+            /*col.removeAttribute('draggable');
             col.removeEventListener('dragstart', sortable.handleDragStart, false);
             col.removeEventListener('dragenter', sortable.handleDragEnter, false);
             col.removeEventListener('dragover', sortable.handleDragOver, false);
             col.removeEventListener('dragleave', sortable.handleDragLeave, false);
             col.removeEventListener('drop', sortable.handleDrop, false);
-            col.removeEventListener('dragend', sortable.handleDragEnd, false);
+            col.removeEventListener('dragend', sortable.handleDragEnd, false);*/
+            sortable.test('unbind', col);
           });
           sortable.in_use = false;
         }
@@ -170,13 +264,35 @@
         }
 
         sortable.register_drop = function(element_children) {
-          element_children.addEventListener('drop', sortable.handleDrop, false);
+          /*element_children.addEventListener('drop', sortable.handleDrop, false);
           element_children.addEventListener('dragstart', sortable.handleDragStart, false);
           element_children.addEventListener('dragenter', sortable.handleDragEnter, false);
           element_children.addEventListener('dragover', sortable.handleDragOver, false);
           element_children.addEventListener('dragleave', sortable.handleDragLeave, false);
           element_children.addEventListener('drop', sortable.handleDrop, false);
-          element_children.addEventListener('dragend', sortable.handleDragEnd, false);
+          element_children.addEventListener('dragend', sortable.handleDragEnd, false);*/
+          sortable.test('bind', element_children);
+        }
+
+        sortable.test = function(eName, el) {
+          var __events = {
+            'drop': 'handleDrop',
+            'dragstart': 'handleDragStart',
+            'dragenter': 'handleDragEnter',
+            'dragover': 'handleDragOver',
+            'dragleave': 'handleDragLeave',
+            'dragend': 'handleDragEnd'
+          };
+
+          for (var i in __events) {
+            var __el = angular.element(el);
+            if (eName.toUpperCase() == 'BIND') {
+              __el['unbind'](i, sortable[__events[i]]);
+              __el[eName](i, sortable[__events[i]]);
+            } else {
+              __el[eName](i, sortable[__events[i]]);
+            }
+          }
         }
 
         sortable.getBrowser = function() {
@@ -216,6 +332,7 @@
               if (handles && handles.length) {
                 [].forEach.call(handles, function(handle) {
                   var el = angular.element(handle);
+
                   el.unbind('mousedown', sortable.activehandle);
                   el.bind('mousedown', sortable.activehandle);
                 });
@@ -297,4 +414,6 @@
       }
     };
   }
+
+
 })();

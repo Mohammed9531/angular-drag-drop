@@ -1,34 +1,125 @@
 /**
- * Customized HTM5 Widgets Sortable for DataLakes 
- *
  * @author: Shoukath Mohammed   
- * @credits:https://github.com/bachvtuan/html5-sortable-angularjs
  */
 (function() {
 
   'use strict';
 
+  var DragDropDataModel = function() {
+    this._events = [
+      'drop', 'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend'
+    ];
+
+    this._options = {
+      'sortBy': null,
+      'inUse': false,
+      'storage': null,
+      'active': false,
+      'replace': false,
+      'hasDragHandle': false
+    };
+
+    this._destItem = {};
+    this._sourceItem = {};
+    this._destIndex = null;
+    this._sourceIndex = null;
+
+    this._currentBrowser = (function() {
+      var result
+      , browser_agent = window.navigator.userAgent;
+
+      if (browser_agent.indexOf(".NET") != -1) {
+        result = "IE";
+      } else if (browser_agent.indexOf("Firefox") != -1) {
+        result = "Firefox";
+      } else {
+        result = "Chrome";
+      }
+      return result;
+    })();
+  };
+
+  DragDropDataModel.prototype._version = "1.0.1";
+
+  DragDropDataModel.prototype._toTitleCase = function() {
+    return this._events.map(function(ev) {
+      return ev.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    });
+  }
+
+  DragDropDataModel.prototype._setItem = function(key, value) {
+    if (!key || !value) {
+      throw new Error("Key & Value must be defined!");
+    }
+    this[(key.indexOf('_') == -1) ? ("_" + key) : key] = value;
+  }
+
+  DragDropDataModel.prototype._sort = function(arr, prop) {
+    if (!this._data || !prop) return;
+    arr = arr || this._data;
+
+    return arr.sort(function(a, b) {
+      return a[prop] - b[prop];
+    });
+  }
+
+  angular.module('angular-html-drag-drop', []);
+
   angular
-    .module('dl.dragAndDrop', [])
-    .directive('widgetsSortable', widgetsSortable);
+      .module('angular-html-drag-drop')
+      .service('DragDropService', DragDropService);
 
-  widgetsSortable.$inject = ["$parse", "$timeout", "$log", "$window"];
+  function DragDropService() {
+    var self = this;
+    var current;
 
-  function widgetsSortable($parse, $timeout, $log, $window) {
+    this.handleDragOver = function(e) {
+      if (e.preventDefault) {
+        e.preventDefault(); // Allows us to drop.
+      }
+      e.dataTransfer.dropEffect = 'move';
+      current = e.currentTarget;
+
+      if (!current.classList.contains('over')) {
+        current.classList.add('over');
+      }
+    };
+    this.handleDragLeave = function(e) {
+       e.currentTarget.classList.remove('over');
+    };
+
+    this.handleDragEnter = function(e) {
+      current = e.currentTarget;
+
+      if (!current.classList.contains('over')) {
+        current.classList.add('over');
+      }
+    };
+  }
+
+
+  angular
+      .module('angular-html-drag-drop')
+      .directive('ngHtmlDragDrop', ngHtmlDragDrop);
+
+  ngHtmlDragDrop.$inject = ["$parse", "$timeout", "$log", "$window", "DragDropService"];
+
+  function ngHtmlDragDrop($parse, $timeout, $log, $window, DragDropService) {
 
     return {
       restrict: 'A',
       require: '?ngModel',
       scope: {
-        widgetsSortable: '=',
-        ngModel: '=',
-        ngExtraSortable: '='
+        ngHtmlDragDrop: '='
       },
+            //scope: true,   // optionally create a child scope
+      link: link
+    };
 
-      //scope: true,   // optionally create a child scope
-      link: function(scope, element, attrs, ngModel) {
-        //var model = $parse(attrs.widgetsSortable);
-        /*attrs.widgetsSortable*/
+    function link(scope, element, attrs, ngModel) {
+        var dataModel = new DragDropDataModel();
 
         var sortable = {};
         sortable.is_handle = false;
@@ -66,28 +157,6 @@
           this.classList.add('moving');
         };
 
-        sortable.handleDragOver = function(e) {
-          if (e.preventDefault) {
-            e.preventDefault(); // Allows us to drop.
-          }
-
-          e.dataTransfer.dropEffect = 'move';
-          e.dataTransfer.dropEffect = "move";
-          
-          if (!this.classList.contains('over')) {
-            this.classList.add('over');
-          }
-        };
-
-        sortable.handleDragEnter = function(e) {
-          if (!this.classList.contains('over')) {
-            this.classList.add('over');
-          }
-        };
-
-        sortable.handleDragLeave = function(e) {
-          this.classList.remove('over');
-        };
 
         sortable.handleDrop = function(e) {
           // this/e.target is current target element.
@@ -129,6 +198,7 @@
 
             //return;
             scope.$apply();
+            sortable.update();
 
             if (sortable.options && angular.isDefined(sortable.options.stop)) {
               $log.info('Make callback');
@@ -155,9 +225,9 @@
           [].forEach.call(sortable.cols_, function(col) {
             col.removeAttribute('draggable');
             col.removeEventListener('dragstart', sortable.handleDragStart, false);
-            col.removeEventListener('dragenter', sortable.handleDragEnter, false);
-            col.removeEventListener('dragover', sortable.handleDragOver, false);
-            col.removeEventListener('dragleave', sortable.handleDragLeave, false);
+            col.removeEventListener('dragenter', DragDropService.handleDragEnter, false);
+            col.removeEventListener('dragover', DragDropService.handleDragOver, false);
+            col.removeEventListener('dragleave', DragDropService.handleDragLeave, false);
             col.removeEventListener('drop', sortable.handleDrop, false);
             col.removeEventListener('dragend', sortable.handleDragEnd, false);
           });
@@ -172,14 +242,14 @@
         sortable.register_drop = function(element_children) {
           element_children.addEventListener('drop', sortable.handleDrop, false);
           element_children.addEventListener('dragstart', sortable.handleDragStart, false);
-          element_children.addEventListener('dragenter', sortable.handleDragEnter, false);
-          element_children.addEventListener('dragover', sortable.handleDragOver, false);
-          element_children.addEventListener('dragleave', sortable.handleDragLeave, false);
+          element_children.addEventListener('dragenter', DragDropService.handleDragEnter, false);
+          element_children.addEventListener('dragover', DragDropService.handleDragOver, false);
+          element_children.addEventListener('dragleave', DragDropService.handleDragLeave, false);
           element_children.addEventListener('drop', sortable.handleDrop, false);
           element_children.addEventListener('dragend', sortable.handleDragEnd, false);
         }
 
-        sortable.getBrowser = function() {
+       /* sortable.getBrowser = function() {
           var browser_agent = $window.navigator.userAgent;
           if (browser_agent.indexOf(".NET") != -1) {
             //IE 11
@@ -189,10 +259,10 @@
           } else {
             return "Chrome";
           }
-        }
+        }*/
 
         sortable.update = function() {
-          $log.info("Update sortable");
+          $log.info("Update sortable:");
           $window['drag_source'] = null;
           var index = 0;
 
@@ -206,7 +276,7 @@
             return;
           }
 
-          this.browser = this.getBrowser();
+          //this.browser = this.getBrowser();
           this.cols_ = element[0].children;
 
           [].forEach.call(this.cols_, function(col) {
@@ -218,6 +288,7 @@
                   var el = angular.element(handle);
                   el.unbind('mousedown', sortable.activehandle);
                   el.bind('mousedown', sortable.activehandle);
+                  //el.attr('draggable', true);
                 });
               }
             }
@@ -235,8 +306,22 @@
         }
 
         if (ngModel) {
-          ngModel.$render = function() {
+          ngModel.$render = onModelRender.bind(this, 
+            scope, 
+            element, 
+            attrs, 
+            ngModel, 
+            sortable
+          );
+        } else {
+          $log.info('Missing ng-model in template');
+        }
+    }
+
+    function onModelRender(scope, element, attrs, ngModel, sortable) {
             $timeout(function() {
+
+              console.log(attrs);
 
               //init flag indicate the first load sortable is done or not
               sortable.first_load = false;
@@ -291,10 +376,7 @@
 
             });
           };
-        } else {
-          $log.info('Missing ng-model in template');
-        }
-      }
-    };
   }
+
+
 })();

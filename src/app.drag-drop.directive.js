@@ -8,18 +8,17 @@ function ngDragDrop() {
 
   // returns elem isolated scope
   return {
-    restrict: 'E',
-    replace: true,
-    scope: {},
-    link: link,
-    templateUrl: templateUrl
+    restrict: 'A',
+    require: '?ngModel',
+    scope: {
+        widgetsSortable: '=',
+        ngModel: '=',
+        ngExtraSortable: '='
+    },
+    link: link
   };
 
-  function templateUrl(elem, attrs) {
-    // do something here...
-  }
-
-  function link(scope, element, attrs) {
-    // do something here...
+  function link(scope, element, attrs, ctrl) {
+    
   }
 }

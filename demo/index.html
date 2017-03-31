@@ -16,7 +16,7 @@
     .panel {
       border-radius: 0px;
     }
-
+    
     [draggable] {
       -moz-user-select: none;
       -khtml-user-select: none;
@@ -26,16 +26,17 @@
       -khtml-user-drag: element;
       -webkit-user-drag: element;
     }
-
+    
     .droppable.over,
-    .widgets-sortable .over {
-      border: 2px dashed #999;
+    .widgets-sortable .handle.over {
+      border: 2px dashed #999 !important;
     }
-
+    
     .widgets-sortable .handle {
       cursor: pointer;
+      border: 2px solid transparent;
     }
-
+    
     .droppable.moving,
     .widgets-sortable .moving {
       border: 2px solid #777;
@@ -47,6 +48,12 @@
       -moz-transform: scale(0.9);
       -ms-transform: scale(0.9);
       -o-transform: scale(0.9);
+    }
+    
+    .test {
+      background: #ccc;
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -75,36 +82,54 @@
   <div class="container">
     <div class="row">
       <div class="col-xs-12 text-center">
-        <h2>Angular Drag & Drop</h2>
+        <!-- <h2>Angular Drag & Drop</h2> -->
       </div>
     </div>
 
     <h3>Drag & Drop Example</h3>
     <hr />
-    <div class="row" widgets-sortable="options" ng-model="blocks">
-      <div class="col-xs-6 columns handle" ng-repeat="block in blocks">
-        <div class="panel panel-default">
+  </div>
+  <!-- <div class="row" ng-html-drag-drop="options1" ng-model="blocks1">
+      <div class="col-md-6 form-group columns handle" ng-repeat="b in blocks1" data-id="{{$index}}">
+        <div class="well">
+          <span>{{b.title}}</span>
+          <span>{{b.desc}}</span>
+        </div>
+      </div>
+  </div> -->
+  <div class="row" ng-html-drag-drop="options" ng-model="blocks">
+    <div class="col-md-6 form-group columns handle" ng-repeat="block in blocks" data-id="{{$index}}">
+      <!-- <div class="panel panel-default">
           <div class="panel-heading">{{block.title}}</div>
           <div class="panel-body">{{block.desc}}</div>
-        </div>
+        </div> -->
+      <div class="well">
+        <span>{{block.title}}</span>
+        <span>{{block.desc}}</span>
       </div>
     </div>
   </div>
+  <br />
   <a class="hidden-xs hidden-sm" href="https://github.com/Mohammed9531/angular-drag-drop"><img style="z-index: 2000; position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
 
   <!--  Vendor files -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
-  <script type="text/javascript" src="app/widgets-sortable.js"></script>
+  <!--  <script type="text/javascript" src="app/widgets-sortable1.js"></script> -->
   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.js"></script> -->
 
   <!-- Angular Module Initializer -->
-  <script type="text/javascript" src="app/app.js"></script>
+  <script type="text/javascript" src="app/src/app.js"></script>
+  <script type="text/javascript" src="app/src/app.drag-drop.model.js"></script>
+  <script type="text/javascript" src="app/src/app.drag-drop.service.js"></script>
+  <script type="text/javascript" src="app/src/app.drag-drop.filter.js"></script>
+  <script type="text/javascript" src="app/src/app.drag-drop.directive.js"></script>
+
 
   <!-- Router -->
   <!-- <script type="text/javascript" src="js/app.routing.js"></script> -->
-
+  <script type="text/javascript" src="app/app.js"></script>
   <script type="text/javascript" src="app/app.controller.js"></script>
 </body>
 
