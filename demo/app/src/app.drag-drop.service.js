@@ -237,13 +237,12 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
      * $watch callback method
      */
     this.updateModel = function() {
-      var dragIndex = self.sourceItem.index;
-      var dragModel = self.sourceItem.model;
-
-      var dropIndex = self.destItem.index;
-      var dropModel = self.destItem.model;
-      var _model = self.options.properties.models || {};
-      var dragged = angular.copy(_model.$modelValue[dragIndex]);
+      var dragIndex = self.sourceItem.index
+      , dragModel = self.sourceItem.model
+      , dropIndex = self.destItem.index
+      , dropModel = self.destItem.model
+      , _model = self.options.properties.models || {}
+      , draggedItemCopy = angular.copy(_model.$modelValue[dragIndex]);
 
       if (_model.$modelValue.indexOf(dragModel) != -1) {
         self.unregister();
@@ -252,7 +251,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
           _model.$modelValue[dropIndex] = dragModel;
         } else {
           _model.$modelValue.splice(dragIndex, 1);
-          _model.$modelValue.splice(dropIndex, 0, dragged);
+          _model.$modelValue.splice(dropIndex, 0, draggedItemCopy);
         }
       } else {
         $log.info("Invalid action");
