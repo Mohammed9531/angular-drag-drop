@@ -223,7 +223,6 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       return false;
     };
 
-
     /**
      * @name: updateModel
      * @methodOf: DataService
