@@ -68,12 +68,12 @@ gulp.task('sass', compileSASS);
 // Concatenate & Minify JS
 gulp.task('minify', function() {
   return gulp.src(config.baseDir + config.jsPattern)
-    .pipe(sourcemaps.init())
     .pipe(angularFilesort())
     .pipe(concat(config.fileName.src))
-    .pipe(replace(/'use strict';/g, ' '))
+    .pipe(replace(/'use strict';/g, ''))
     .pipe(iife())
     .pipe(header(getHeader()))
+    .pipe(sourcemaps.init())
     .pipe(gulp.dest(config.destDir))
     .pipe(rename(config.fileName.min))
     .pipe(uglify())

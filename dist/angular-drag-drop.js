@@ -34,7 +34,7 @@
 "use strict";
 
 angular.module('angular-html-drag-drop', []);
- 
+
 
 /**
  * @ngdoc service
@@ -486,7 +486,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     }
   };
 }
- 
+
 
 angular
   .module('angular-html-drag-drop')
