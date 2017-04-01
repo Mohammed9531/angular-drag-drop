@@ -81,9 +81,14 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     }
 
     function getSuffix(str) {
-      var _str = toTitleCase(str),
-        suffix = _str.substring(_str.indexOf("g") + 1);
+      var _str = toTitleCase(str)
+      , suffix = _str.substring(_str.indexOf("g") + 1);
       return _str.replace(suffix, toTitleCase(suffix));
+    }
+
+    function onDataRendered() {
+      // init flag indicate the first load sortable is done or not
+      self.first_load = false;
     }
 
     /**
@@ -185,12 +190,6 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
 
       //Watch ngModel and narrate it
       scope.$watch('ngModel', onModelChange, true);
-
-
-      function onDataRendered() {
-        // init flag indicate the first load sortable is done or not
-        self.first_load = false;
-      }
     };
 
     /**
