@@ -3,8 +3,10 @@ var
   gulp = require('gulp'),
   gulpif = require('gulp-if'),
   gutil = require('gulp-util'),
+  clean = require('gulp-clean');
   gulpIgnore = require('gulp-ignore'),
-  
+  sourcemaps = require('gulp-sourcemaps'),
+  angularFilesort = require('gulp-angular-filesort'),
 
   // Read Files
   fs = require("fs"),
@@ -12,6 +14,7 @@ var
 
   // Add Config
   config = {
+    destDir: 'dist',
     baseDir: 'src/**/',
     jsPattern: '*.js',
     htmlPattern: '*.html',
@@ -49,12 +52,20 @@ gulp.task('lint', function() {
     .pipe(jshint.reporter('default'));
 });
 
+// Clean Task
+gulp.task('clean', function() {
+  return gulp.src(config.destDir)
+    .pipe(clean({force: true}));
+});
+
 // Compile Our Sass
 gulp.task('sass', compileSASS);
 
 // Concatenate & Minify JS
 gulp.task('minify', function() {
   return gulp.src(config.baseDir + config.jsPattern)
+    .pipe(sourcemaps.init())
+    .pipe(angularFilesort())
     .pipe(concat('angular-drag-drop.js'))
     .pipe(replace(/'use strict';/g, ' '))
     .pipe(iife())
@@ -63,7 +74,8 @@ gulp.task('minify', function() {
     .pipe(rename('angular-drag-drop.min.js'))
     .pipe(uglify())
     .pipe(header(getHeader()))
-    .pipe(gulp.dest('dist'));
+    .pipe(sourcemaps.write('/'))
+    .pipe(gulp.dest(config.destDir));
 });
 
 //Watch Files For Changes
@@ -173,4 +185,4 @@ function compileSASS() {
 }
 
 // Default Task
-gulp.task('default', ['prettify']);
+gulp.task('default', ['clean', 'minify']);

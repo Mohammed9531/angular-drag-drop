@@ -1,4 +1,40 @@
-'use strict';
+/**
+ * angular-drag-drop.js v1.0.1
+ * --------------------------------------------------------------------
+ *
+ * AngularJS Drag & Drop Directive
+ * @author Shoukath Mohammed <mshoukath.uideveloper@gmail.com>
+ *
+ * Copyright (C) 2017
+ *
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+ ;(function() {
+"use strict";
+
+angular.module('angular-html-drag-drop', []);
+ 
 
 /**
  * @ngdoc service
@@ -451,3 +487,87 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     }
   };
 }
+ 
+
+angular
+  .module('angular-html-drag-drop')
+  .directive('ngHtmlDragDrop', ngHtmlDragDrop);
+
+ngHtmlDragDrop.$inject = [
+  "$parse", "$timeout", "$log", "$window", "DragDropService", "$rootScope"
+];
+
+function ngHtmlDragDrop($parse, $timeout, $log,
+  $window, DragDropService, $rootScope) {
+
+  return {
+    restrict: 'A',
+    require: '?ngModel',
+    scope: {
+      ngHtmlDragDrop: '='
+    },
+    link: link
+  };
+
+  function link(scope, element, attrs, ngModel) {
+    var DragDropServiceInstance = DragDropServiceInstance || DragDropService.getInstance();
+
+    DragDropServiceInstance.setColumns(element);
+    DragDropServiceInstance.options.inUse = false;
+    DragDropServiceInstance.options.isHandle = false;
+
+    DragDropServiceInstance.options.properties = {
+      scope: scope,
+      attrs: attrs,
+      elem: element,
+      models: ngModel
+    };
+
+    $rootScope.$on("draggableEnd",
+      function($event, data) {
+        scope.$apply();
+        DragDropServiceInstance.update();
+      }
+    );
+
+    if (ngModel) {
+      ngModel.$render = DragDropServiceInstance
+        .onModelRender.bind(this, scope, element, attrs, ngModel);
+    } else {
+      $log.info('Missing ng-model in template');
+    }
+
+    scope.$watch("ngHtmlDragDrop", onDataChange, true);
+
+    function onDataChange(value) {
+      var dd = DragDropServiceInstance;
+
+      if (value && Object.keys(value).length > 0) {
+        DragDropServiceInstance.options = angular.extend(dd.options,
+          angular.copy(value)
+        );
+      }
+
+      if (value == "destroy") {
+        if (dd.options.isHandle) {
+          DragDropServiceInstance.options.isHandle = false;
+          DragDropServiceInstance.unregister();
+        }
+        return;
+      }
+
+      DragDropServiceInstance.options = dd.options || {};
+
+      if (angular.isDefined(scope.ngHtmlDragDrop.construct)) {
+        scope.ngHtmlDragDrop.construct(ngModel.$modelValue);
+      }
+
+      element[0].classList.add('widgets-sortable');
+      DragDropServiceInstance.update();
+      $timeout(function() {
+        DragDropServiceInstance.first_load = true;
+      });
+    }
+  }
+}
+}());

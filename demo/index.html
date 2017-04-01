@@ -88,28 +88,17 @@
 
     <h3>Drag & Drop Example</h3>
     <hr />
-  </div>
-  <!-- <div class="row" ng-html-drag-drop="options1" ng-model="blocks1">
-      <div class="col-md-6 form-group columns handle" ng-repeat="b in blocks1" data-id="{{$index}}">
+    <div class="row" ng-html-drag-drop="options" ng-model="blocks">
+      <div class="col-md-6 form-group columns handle" ng-repeat="block in blocks" data-id="{{$index}}">
         <div class="well">
-          <span>{{b.title}}</span>
-          <span>{{b.desc}}</span>
+          <span>{{block.title}}</span>
+          <span>{{block.desc}}</span>
         </div>
       </div>
-  </div> -->
-  <div class="row" ng-html-drag-drop="options" ng-model="blocks">
-    <div class="col-md-6 form-group columns handle" ng-repeat="block in blocks" data-id="{{$index}}">
-      <!-- <div class="panel panel-default">
-          <div class="panel-heading">{{block.title}}</div>
-          <div class="panel-body">{{block.desc}}</div>
-        </div> -->
-      <div class="well">
-        <span>{{block.title}}</span>
-        <span>{{block.desc}}</span>
-      </div>
     </div>
+    <br />
   </div>
-  <br />
+
   <a class="hidden-xs hidden-sm" href="https://github.com/Mohammed9531/angular-drag-drop"><img style="z-index: 2000; position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
 
   <!--  Vendor files -->
@@ -120,17 +109,14 @@
   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.js"></script> -->
 
   <!-- Angular Module Initializer -->
-  <script type="text/javascript" src="app/src/app.js"></script>
-  <script type="text/javascript" src="app/src/app.drag-drop.model.js"></script>
-  <script type="text/javascript" src="app/src/app.drag-drop.service.js"></script>
-  <script type="text/javascript" src="app/src/app.drag-drop.filter.js"></script>
-  <script type="text/javascript" src="app/src/app.drag-drop.directive.js"></script>
-
+  <!-- <script type="text/javascript" src="../src/app.js"></script>
+  <script type="text/javascript" src="../src/app.drag-drop.service.js"></script>
+  <script type="text/javascript" src="../src/app.drag-drop.directive.js"></script> -->
+  <script type="text/javascript" src="../dist/angular-drag-drop.js"></script>
 
   <!-- Router -->
   <!-- <script type="text/javascript" src="js/app.routing.js"></script> -->
   <script type="text/javascript" src="app/app.js"></script>
   <script type="text/javascript" src="app/app.controller.js"></script>
 </body>
-
 </html>

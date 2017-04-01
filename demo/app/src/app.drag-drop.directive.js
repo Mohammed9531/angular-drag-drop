@@ -21,13 +21,13 @@ function ngHtmlDragDrop($parse, $timeout, $log,
   };
 
   function link(scope, element, attrs, ngModel) {
-    var dd = dd || DragDropService.getInstance();
+    var DragDropServiceInstance = DragDropServiceInstance || DragDropService.getInstance();
 
-    dd.setColumns(element);
-    dd.options.inUse = false;
-    dd.options.isHandle = false;
+    DragDropServiceInstance.setColumns(element);
+    DragDropServiceInstance.options.inUse = false;
+    DragDropServiceInstance.options.isHandle = false;
 
-    dd.options.properties = {
+    DragDropServiceInstance.options.properties = {
       scope: scope,
       attrs: attrs,
       elem: element,
@@ -37,12 +37,12 @@ function ngHtmlDragDrop($parse, $timeout, $log,
     $rootScope.$on("draggableEnd",
       function($event, data) {
         scope.$apply();
-        dd.update();
+        DragDropServiceInstance.update();
       }
     );
 
     if (ngModel) {
-      ngModel.$render = dd
+      ngModel.$render = DragDropServiceInstance
         .onModelRender.bind(this, scope, element, attrs, ngModel);
     } else {
       $log.info('Missing ng-model in template');
@@ -50,32 +50,33 @@ function ngHtmlDragDrop($parse, $timeout, $log,
 
     scope.$watch("ngHtmlDragDrop", onDataChange, true);
 
-
     function onDataChange(value) {
+      var dd = DragDropServiceInstance;
+
       if (value && Object.keys(value).length > 0) {
-        dd.options = angular.extend(dd.options,
+        DragDropServiceInstance.options = angular.extend(dd.options,
           angular.copy(value)
         );
       }
 
       if (value == "destroy") {
         if (dd.options.isHandle) {
-          dd.options.isHandle = false;
-          dd.unregister();
+          DragDropServiceInstance.options.isHandle = false;
+          DragDropServiceInstance.unregister();
         }
         return;
       }
 
-      dd.options = dd.options || {};
+      DragDropServiceInstance.options = dd.options || {};
 
       if (angular.isDefined(scope.ngHtmlDragDrop.construct)) {
         scope.ngHtmlDragDrop.construct(ngModel.$modelValue);
       }
 
       element[0].classList.add('widgets-sortable');
-      dd.update();
+      DragDropServiceInstance.update();
       $timeout(function() {
-        dd.first_load = true;
+        DragDropServiceInstance.first_load = true;
       });
     }
   }
