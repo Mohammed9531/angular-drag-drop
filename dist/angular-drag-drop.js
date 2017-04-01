@@ -259,7 +259,6 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
       return false;
     };
 
-
     /**
      * @name: updateModel
      * @methodOf: DataService
@@ -494,7 +493,12 @@ angular
   .directive('ngHtmlDragDrop', ngHtmlDragDrop);
 
 ngHtmlDragDrop.$inject = [
-  "$parse", "$timeout", "$log", "$window", "DragDropService", "$rootScope"
+    "$parse"
+  , "$timeout"
+  , "$log"
+  , "$window"
+  , "DragDropService"
+  , "$rootScope"
 ];
 
 function ngHtmlDragDrop($parse, $timeout, $log,
