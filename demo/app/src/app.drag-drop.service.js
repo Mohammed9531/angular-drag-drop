@@ -194,14 +194,13 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     };
 
     /**
-     * @name: onDataChange
+     * @name: handleDrop
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
+     * @param {Object | e} triggered event
      *
      * @description
-     * $watch callback method
+     * triggered when dragging activity is completed
      */
     this.handleDrop = function(e) {
       self.destItem = e.currentTarget;
@@ -227,14 +226,11 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
 
 
     /**
-     * @name: onDataChange
+     * @name: updateModel
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
-     *
      * @description
-     * $watch callback method
+     * rearranges model data on drag end
      */
     this.updateModel = function() {
       var dragIndex = self.sourceItem.index
@@ -258,6 +254,7 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
         return;
       }
 
+      // emits draggableEnd event when dragging activing is completed
       self.onEnd = $rootScope.$emit("draggableEnd", {
         model: _model,
         dropIndex: dropIndex,
@@ -268,14 +265,12 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     };
 
     /**
-     * @name: onDataChange
+     * @name: update
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
-     *
      * @description
-     * $watch callback method
+     * registers elements to drag & drop events
+     * attaches index & data model to each element children
      */
     this.update = function() {
       self.sourceItem = null;
@@ -309,28 +304,22 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     };
 
     /**
-     * @name: onDataChange
+     * @name: activeHandle
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
-     *
      * @description
-     * $watch callback method
+     * activates handle on when mouseup on the element
      */
-    this.activehandle = function() {
+    this.activeHandle = function() {
       self.options.isHandle = true;
     };
 
     /**
-     * @name: onDataChange
+     * @name: updateHandles
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
-     *
      * @description
-     * $watch callback method
+     * updates drag and drop handles on child elements
      */
     this.updateHandles = function() {
       // find list of element with handles
@@ -344,22 +333,21 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
           // if element is not empty, bind event to it
           // remove previously bound events if any
           if (angular.isObject(el)) {
-            el.unbind('mousedown', self.activehandle);
-            el.bind('mousedown', self.activehandle);
+            el.unbind('mousedown', self.activeHandle);
+            el.bind('mousedown', self.activeHandle);
           }
         });
       }
     };
 
     /**
-     * @name: onDataChange
+     * @name: handleDragStart
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
+     * @param {Object | e} triggered event
      *
      * @description
-     * $watch callback method
+     * triggered when element is dragged
      */
     this.handleDragStart = function(e) {
       var current = e.currentTarget;
@@ -385,28 +373,22 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     };
 
     /**
-     * @name: onDataChange
+     * @name: register
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
-     *
      * @description
-     * $watch callback method
+     * binds drag & drop events to the element
      */
     this.register = function(el) {
       self.eventsProcessor(el, 'addEventListener');
     };
 
     /**
-     * @name: onDataChange
+     * @name: unregister
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
-     *
      * @description
-     * $watch callback method
+     * unbinds/removes drag & drop events from the element
      */
     this.unregister = function() {
       self.options.isHandle = false;
@@ -418,33 +400,38 @@ function DragDropService($timeout, $log, $window, $document, $rootScope) {
     };
 
     /**
-     * @name: onDataChange
+     * @name: eventsProcessor
      * @methodOf: DataService
      *
-     * @param {newArr} updated data
-     * @param {oldArr} old data
+     * @param {el} element to bind events to
+     * @param {action | addEventListener| removeEventListener} 
      *
      * @description
-     * $watch callback method
+     * helper function to perform add or remove event listeners
      */
     this.eventsProcessor = function(el, action) {
       for (var i = 0; i < self.events.length; i++) {
-        el[action](self.events[i], self["handle" + getSuffix(self.events[i])], false);
+        el[action](self.events[i], self["handle" 
+        +  getSuffix(self.events[i])], false);
       }
     };
   }
 
+  /**
+   * @name: events
+   *
+   * @description
+   * list of drag & drop events
+   */
   DataFactory.prototype.events = DRAG_EVENTS;
 
   /**
-   * @name: onDataChange
+   * @name: currentBrowser
    * @methodOf: DataService
    *
-   * @param {newArr} updated data
-   * @param {oldArr} old data
-   *
    * @description
-   * $watch callback method
+   * detects the current browser
+   * currently used to avoid drag & drop issues on IE
    */
   DataFactory.prototype.currentBrowser = function() {
     var result, browser_agent = $window.navigator.userAgent;
