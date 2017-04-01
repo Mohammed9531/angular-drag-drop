@@ -18,7 +18,11 @@ var
     baseDir: 'src/**/',
     jsPattern: '*.js',
     htmlPattern: '*.html',
-    sassPattern: '*.scss'
+    sassPattern: '*.scss',
+    fileName: {
+      src: 'angular-drag-drop.js',
+      min: 'angular-drag-drop.min.js'
+    }
   },
 
   // To Detect Any File Change
@@ -66,12 +70,12 @@ gulp.task('minify', function() {
   return gulp.src(config.baseDir + config.jsPattern)
     .pipe(sourcemaps.init())
     .pipe(angularFilesort())
-    .pipe(concat('angular-drag-drop.js'))
+    .pipe(concat(config.fileName.src))
     .pipe(replace(/'use strict';/g, ' '))
     .pipe(iife())
     .pipe(header(getHeader()))
-    .pipe(gulp.dest('dist'))
-    .pipe(rename('angular-drag-drop.min.js'))
+    .pipe(gulp.dest(config.destDir))
+    .pipe(rename(config.fileName.min))
     .pipe(uglify())
     .pipe(header(getHeader()))
     .pipe(sourcemaps.write('/'))
